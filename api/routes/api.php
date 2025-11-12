@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\ClientController;
 
 /*
 |--------------------------------------------------------------------------
@@ -27,6 +28,9 @@ Route::middleware('auth:sanctum')->group(function () {
     
     // Ruta para obtener datos del usuario    
     Route::apiResource('users', UserController::class);
+    
+    // Ruta para obtener datos del cliente    
+    Route::apiResource('clients', ClientController::class);
 
 
 });

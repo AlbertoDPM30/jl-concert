@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('chairs', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('id_table')->unique()->constrained('tables')->onDelete('cascade');
+            $table->foreignId('id_table')->constrained('tables')->onDelete('cascade');
             $table->integer('number');
             $table->boolean('status'); /* 1: Disponible; 0: Reservada */
             $table->timestamps();

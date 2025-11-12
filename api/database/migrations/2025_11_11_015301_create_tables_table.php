@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('tables', function (Blueprint $table) {
             $table->id();
-            $table->string('letter');
+            $table->string('number');
             $table->integer('chair_quantity');
             $table->timestamps();
         });
