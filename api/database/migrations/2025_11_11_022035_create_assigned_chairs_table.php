@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('assigned_chairs', function (Blueprint $table) {
             $table->id();
             $table->foreignId('id_client')->unique()->constrained('clients')->onDelete('cascade');
+            $table->foreignId('id_table')->unique()->constrained('tables')->onDelete('cascade');
             $table->foreignId('id_chair')->unique()->constrained('chairs')->onDelete('cascade');
             $table->timestamps();
         });

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ClientController;
+use App\Http\Controllers\Api\AssignedChairController;
 
 /*
 |--------------------------------------------------------------------------
@@ -31,6 +32,9 @@ Route::middleware('auth:sanctum')->group(function () {
     
     // Ruta para obtener datos del cliente    
     Route::apiResource('clients', ClientController::class);
+    
+    // Ruta para obtener datos del cliente    
+    Route::apiResource('assigned', AssignedChairController::class);
 
 
 });

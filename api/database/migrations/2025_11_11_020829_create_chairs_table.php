@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('id_table')->constrained('tables')->onDelete('cascade');
             $table->integer('number');
-            $table->boolean('status'); /* 1: Disponible; 0: Reservada */
+            $table->boolean('status')->default(0); /* 1: Disponible; 0: Reservada */
             $table->timestamps();
         });
     }

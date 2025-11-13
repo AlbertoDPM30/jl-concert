@@ -25,7 +25,8 @@ class TableFactory extends Factory
 
         return [
             'number' => $tableNumber, 
-            'chair_quantity' => 5, // Asumimos 5 por defecto según lo solicitado
+            'chair_quantity' => 4, // Asumimos 4 por defecto según lo solicitado
+            'status' => 0,
         ];
     }
 
@@ -37,11 +38,11 @@ class TableFactory extends Factory
     {
         return $this->afterCreating(function (Table $table) {
             
-            // Lógica para crear 5 sillas por cada mesa
-            for ($i = 1; $i <= 5; $i++) {
+            // Lógica para crear 4 sillas por cada mesa
+            for ($i = 1; $i <= 4; $i++) {
                 Chair::factory()->create([
                     'id_table' => $table->id, // Establece la clave foránea a la mesa recién creada
-                    'number' => $i,            // Número secuencial de silla (1 a 5)
+                    'number' => $i,            // Número secuencial de silla (1 a 4)
                     'status' => 0,
                 ]);
             }

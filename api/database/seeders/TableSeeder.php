@@ -12,7 +12,7 @@ class TableSeeder extends Seeder
      */
     public function run(): void
     {
-        // Crea 10 mesas de ejemplo usando el TableFactory
-        Table::factory()->count(150)->create(); 
+        // Crea 120 mesas de ejemplo usando el TableFactory
+        Table::factory()->count(120)->create(); 
     }
 }
