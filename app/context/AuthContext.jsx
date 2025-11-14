@@ -92,7 +92,7 @@ export function AuthProvider({ children }) {
     logout,
   };
 
-  if (loading) return <div>Cargando autenticación...</div>; // O un componente de Spinner
+  if (loading) return <div>Cargando autenticación...</div>;
 
   return (
     <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
