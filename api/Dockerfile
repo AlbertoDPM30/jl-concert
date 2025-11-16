@@ -1,40 +1,79 @@
-FROM php:8.2-fpm
+FROM ubuntu:22.04
+
+# Evitar preguntas durante la instalación
+ENV DEBIAN_FRONTEND=noninteractive
 
 # Instalar dependencias del sistema
 RUN apt-get update && apt-get install -y \
-    libpng-dev \
-    libjpeg-dev \
-    libfreetype6-dev \
-    libonig-dev \
-    libxml2-dev \
-    zip \
+    software-properties-common \
     curl \
+    wget \
+    git \
     unzip \
     libzip-dev \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install gd mbstring exif pcntl bcmath xml pdo_mysql zip
+    libpng-dev \
+    libonig-dev \
+    libxml2-dev \
+    libssl-dev \
+    libcurl4-openssl-dev \
+    pkg-config \
+    autoconf \
+    build-essential \
+    nginx \
+    supervisor
+
+# Instalar PHP 8.2 y extensiones necesarias
+RUN add-apt-repository ppa:ondrej/php -y && \
+    apt-get update && \
+    apt-get install -y \
+    php8.2 \
+    php8.2-fpm \
+    php8.2-mysql \
+    php8.2-mbstring \
+    php8.2-xml \
+    php8.2-zip \
+    php8.2-gd \
+    php8.2-curl \
+    php8.2-bcmath \
+    php8.2-redis \
+    php8.2-pdo
 
 # Instalar Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 # Configurar directorio de trabajo
-WORKDIR /var/www
+WORKDIR /var/www/html
 
 # Copiar archivos de la aplicación
 COPY . .
 
-# Instalar dependencias de Laravel
+# Configurar permisos
+RUN chown -R www-data:www-data /var/www/html/storage
+RUN chown -R www-data:www-data /var/www/html/bootstrap/cache
+RUN chmod -R 775 /var/www/html/storage
+RUN chmod -R 775 /var/www/html/bootstrap/cache
+
+# Copiar configuración de PHP-FPM
+COPY php-fpm.conf /etc/php/8.2/fpm/php-fpm.conf
+COPY www.conf /etc/php/8.2/fpm/pool.d/www.conf
+
+# Copiar configuración de Nginx
+COPY nginx.conf /etc/nginx/sites-available/default
+
+# Copiar configuración de Supervisor
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+# Instalar dependencias de Composer
 RUN composer install --no-dev --optimize-autoloader
 
-# Configurar permisos
-RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
-RUN chmod -R 775 /var/www/storage /var/www/bootstrap/cache
-
-# Script de espera para la base de datos
-COPY ../scripts/wait-for-db.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/wait-for-db.sh
+# Generar key de aplicación (se sobreescribirá con variable de entorno)
+RUN php artisan key:generate
 
 # Exponer puerto
-EXPOSE 8000
+EXPOSE 80
 
-CMD ["/usr/local/bin/wait-for-db.sh", "php-fpm"]
+# Script de inicio
+COPY start-container.sh /usr/local/bin/start-container.sh
+RUN chmod +x /usr/local/bin/start-container.sh
+
+CMD ["/usr/local/bin/start-container.sh"]
