@@ -70,7 +70,7 @@ RUN composer install --no-dev --optimize-autoloader
 # RUN php artisan key:generate
 
 # Exponer puerto
-EXPOSE 8000
+EXPOSE 80
 
 # Script de inicio
 COPY start-container.sh /usr/local/bin/start-container.sh
