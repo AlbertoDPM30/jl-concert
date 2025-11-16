@@ -67,10 +67,10 @@ COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 RUN composer install --no-dev --optimize-autoloader
 
 # Generar key de aplicación (se sobreescribirá con variable de entorno)
-RUN php artisan key:generate
+# RUN php artisan key:generate
 
 # Exponer puerto
-EXPOSE 80
+EXPOSE 8000
 
 # Script de inicio
 COPY start-container.sh /usr/local/bin/start-container.sh
