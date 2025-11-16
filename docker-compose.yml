@@ -1,0 +1,61 @@
+version: "3.8"
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql_db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - app-network
+    command: --default-authentication-plugin=mysql_native_password
+
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: laravel_api
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - ./api:/var/www
+    environment:
+      DB_HOST: mysql_db
+      DB_PORT: 3306
+    depends_on:
+      - mysql
+    networks:
+      - app-network
+    ports:
+      - "8000:80"
+
+  app:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    container_name: nextjs_app
+    restart: unless-stopped
+    working_dir: /app
+    volumes:
+      - ./app:/app
+      - /app/node_modules
+      - /app/.next
+    depends_on:
+      - api
+    networks:
+      - app-network
+    ports:
+      - "3000:3000"
+
+volumes:
+  mysql_data:
+
+networks:
+  app-network:
+    driver: bridge
