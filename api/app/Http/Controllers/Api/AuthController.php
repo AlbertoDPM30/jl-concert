@@ -66,7 +66,7 @@ class AuthController extends Controller
 
         return response()->json([
             'message' => 'Inicio de sesión exitoso',
-            'user' => $user,
+            'data' => $user,
             'access_token' => $token,
             'token_type' => 'Bearer',
         ], Response::HTTP_OK); // Código 200

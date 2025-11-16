@@ -14,10 +14,15 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
+    
+        $defualtName = env('USER_DEFAULT_NAME');
+        $defualtEmail = env('USER_DEFAULT_EMAIL');
+        $defualtPass = env('USER_DEFAULT_PASS');
+
         DB::table('users')->insert([
-            'name' => 'Master',
-            'email' => 'master@system.com',
-            'password' => Hash::make('Olaf_Sep20'),
+            'name' => $defualtName,
+            'email' => $defualtEmail,
+            'password' => Hash::make($defualtPass),
         ]);
     }
 }

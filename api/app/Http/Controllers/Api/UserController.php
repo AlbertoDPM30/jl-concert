@@ -46,7 +46,7 @@ class UserController extends Controller
         // Retorna el nuevo usuario creado y el código de estado 201 (Created)
         return response()->json([
             'message' => 'Usuario creado exitosamente',
-            'user' => $user
+            'data' => $user
         ], Response::HTTP_CREATED); // Código 201
     }
 
@@ -95,7 +95,7 @@ class UserController extends Controller
         // Retorna el usuario actualizado y el código de estado 200
         return response()->json([
             'message' => 'Usuario actualizado exitosamente',
-            'user' => $user
+            'data' => $user
         ], Response::HTTP_OK); // Código 200
     }
 

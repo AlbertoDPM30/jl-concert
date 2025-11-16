@@ -3,7 +3,7 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import axios from "axios";
 
-// 1. Crear el Contexto
+// Crear el Contexto
 const AuthContext = createContext();
 
 // Dirección de la API desde la variable de entorno
@@ -14,36 +14,71 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // 2. Cargar el token al iniciar
-  useEffect(() => {
-    const storedToken = localStorage.getItem("authToken");
-    if (storedToken) {
-      setToken(storedToken);
-      // Opcional: Decodificar el token o hacer una solicitud para obtener datos del usuario
-      // Para este ejemplo, solo cargaremos el token.
+  // Función para obtener los datos del usuario
+  const fetchUser = async (userToken) => {
+    try {
+      const response = await axios.get(`${BACKEND_URL}/users/`, {
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+        },
+      });
+
+      // Asumiendo que el backend devuelve los datos del usuario en response.data
+      const userData = response.data;
+      setUser(userData);
+      return userData;
+    } catch (error) {
+      console.error(
+        "Error al obtener datos del usuario:",
+        error.response ? error.response.data : error.message
+      );
+      // Si hay error al obtener el usuario, limpiamos el token
+      localStorage.removeItem("authToken");
+      setToken(null);
+      throw new Error("No se pudieron obtener los datos del usuario");
     }
-    setLoading(false);
+  };
+
+  // Cargar el token y datos del usuario al iniciar
+  useEffect(() => {
+    const initializeAuth = async () => {
+      const storedToken = localStorage.getItem("authToken");
+      if (storedToken) {
+        setToken(storedToken);
+        try {
+          // Obtener datos del usuario con el token almacenado
+          await fetchUser(storedToken);
+        } catch (error) {
+          console.error("Error al cargar datos del usuario:", error);
+          // Si hay error, limpiamos el token inválido
+          localStorage.removeItem("authToken");
+          setToken(null);
+        }
+      }
+      setLoading(false);
+    };
+
+    initializeAuth();
   }, []);
 
-  // 3. Función de Login
+  // Función de Login
   const login = async (email, password) => {
     try {
       const response = await axios.post(`${BACKEND_URL}/login/`, {
-        // Asegúrate que esta es la ruta correcta
         email,
         password,
       });
 
-      const accessToken = response.data.token; // Asumiendo que el backend devuelve { token: '...' }
+      const accessToken = response.data.access_token;
 
       // Almacenar el token
       localStorage.setItem("authToken", accessToken);
       setToken(accessToken);
 
-      // Opcional: Obtener datos del usuario loggeado
-      // await fetchUser(accessToken);
+      // Obtener y almacenar datos del usuario
+      const userData = await fetchUser(accessToken);
 
-      return true; // Login exitoso
+      return { success: true, user: userData };
     } catch (error) {
       console.error(
         "Error de login:",
@@ -55,15 +90,19 @@ export function AuthProvider({ children }) {
     }
   };
 
-  // 4. Función de Logout
+  // Función de Logout
   const logout = () => {
     localStorage.removeItem("authToken");
     setToken(null);
     setUser(null);
   };
 
-  // 5. Interceptor de Axios para enviar el token en cada solicitud
-  // Esto asegura que cada solicitud enviada por axios incluya el token si existe.
+  // Función para actualizar datos del usuario
+  const updateUser = (newUserData) => {
+    setUser((prevUser) => ({ ...prevUser, ...newUserData }));
+  };
+
+  // Interceptor de Axios para enviar el token en cada solicitud
   useEffect(() => {
     const interceptor = axios.interceptors.request.use(
       (config) => {
@@ -90,6 +129,8 @@ export function AuthProvider({ children }) {
     isAuthenticated: !!token,
     login,
     logout,
+    updateUser,
+    fetchUser: () => fetchUser(token), // Permitir refetch manual
   };
 
   if (loading) return <div>Cargando autenticación...</div>;
@@ -99,7 +140,11 @@ export function AuthProvider({ children }) {
   );
 }
 
-// 6. Hook personalizado para usar el contexto
+// Hook personalizado para usar el contexto
 export const useAuth = () => {
-  return useContext(AuthContext);
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("useAuth debe ser usado dentro de un AuthProvider");
+  }
+  return context;
 };

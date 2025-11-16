@@ -2,15 +2,12 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Database\Eloquent\Model;
 
 class Chair extends Model
 {
-
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasFactory;
 
     protected $fillable = [
         'id_table',
@@ -18,4 +15,12 @@ class Chair extends Model
         'status',
     ];
 
+    /**
+     * Define la relación inversa con la mesa.
+     */
+    public function table()
+    {
+        // Una silla pertenece a una mesa
+        return $this->belongsTo(Table::class);
+    }
 }

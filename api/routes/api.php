@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ClientController;
+use App\Http\Controllers\Api\TableController;
+use App\Http\Controllers\Api\ChairController;
 use App\Http\Controllers\Api\AssignedChairController;
 
 /*
@@ -33,8 +35,17 @@ Route::middleware('auth:sanctum')->group(function () {
     // Ruta para obtener datos del cliente    
     Route::apiResource('clients', ClientController::class);
     
+    // Ruta para obtener datos de las mesas    
+    Route::apiResource('tables', TableController::class);
+    
+    // Ruta para obtener datos de las sillas   
+    Route::apiResource('chairs', ChairController::class);
+    Route::get('tables/{tableId}/chairs', [ChairController::class, 'chairsByTable']);
+    
     // Ruta para obtener datos del cliente    
     Route::apiResource('assigned', AssignedChairController::class);
+    Route::get('tables/{tableId}/assigned', [AssignedChairController::class, 'tableByAssigned']);
+    Route::get('chairs/{chairId}/assigned', [AssignedChairController::class, 'chairByAssigned']);
 
 
 });

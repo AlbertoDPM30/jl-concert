@@ -18,4 +18,12 @@ class Client extends Model
         'phone_number',
     ];
 
+    /**
+     * Define la relación con las sillas.
+     */
+    public function assigned()
+    {
+        // Un cliente tiene muchas sillas
+        return $this->hasMany(AssignedChair::class);
+    }
 }
