@@ -90,7 +90,7 @@ class TableController extends Controller
     {
         $request->validate([
             'chair_quantity' => 'required|integer|max:11',
-            'status' => 'required|boolean',
+            'status' => 'required|integer',
         ]);
 
         $tableData = [

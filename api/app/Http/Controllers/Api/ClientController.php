@@ -19,7 +19,7 @@ class ClientController extends Controller
     {
         
         // Obtiene 10 clientes por página
-        $clients = Client::paginate(10); 
+        $clients = Client::all(); 
         
         // Retorna la colección paginada como JSON
         return response()->json($clients, Response::HTTP_OK); // Código 200
