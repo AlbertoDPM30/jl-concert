@@ -17,7 +17,7 @@ export function AuthProvider({ children }) {
   // Función para obtener los datos del usuario
   const fetchUser = async (userToken) => {
     try {
-      const response = await axios.get(`${BACKEND_URL}/users/`, {
+      const response = await axios.get(`${BACKEND_URL}/users`, {
         headers: {
           Authorization: `Bearer ${userToken}`,
         },
@@ -64,7 +64,7 @@ export function AuthProvider({ children }) {
   // Función de Login
   const login = async (email, password) => {
     try {
-      const response = await axios.post(`${BACKEND_URL}/login/`, {
+      const response = await axios.post(`${BACKEND_URL}/login`, {
         email,
         password,
       });

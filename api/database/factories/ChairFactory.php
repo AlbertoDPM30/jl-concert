@@ -23,7 +23,7 @@ class ChairFactory extends Factory
         // para tener un factory base si se usara individualmente.
         return [
             'id_table' => Table::factory(), // Opcional: define una relación por defecto
-            'number' => $this->faker->numberBetween(1, 5),
+            'number' => $this->faker->numberBetween(1, 4),
             'status' => $this->faker->numberBetween(0, 1),
         ];
     }

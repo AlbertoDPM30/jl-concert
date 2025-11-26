@@ -6,6 +6,7 @@ import useApi from "./hooks/useApi.jsx";
 import useChairs from "./hooks/useChairs";
 import useAssigned from "./hooks/useAssigned";
 import useClients from "./hooks/useClients";
+import useTables from "./hooks/useTables"; // Importar useTables
 import SearchClients from "./components/SearchClients.jsx";
 import {
   User,
@@ -17,6 +18,7 @@ import {
   Trash2,
   Armchair,
   Save,
+  Bookmark, // Icono para Reservado
 } from "lucide-react";
 
 // --- COMPONENTE DE MODAL PARA GESTIÓN DE MESAS ---
@@ -54,6 +56,9 @@ const TableManagementModal = ({ tableId, onClose, onDataUpdated }) => {
     createClient,
   } = useClients();
 
+  // Hook para actualizar el estado de la mesa
+  const { updateTable } = useTables();
+
   // Estados combinados
   const isLoading = chairsLoading || assignedLoading || clientsLoading;
   const hasError = chairsError || assignedError || clientsError;
@@ -66,6 +71,25 @@ const TableManagementModal = ({ tableId, onClose, onDataUpdated }) => {
       fetchClients();
     }
   }, [tableId]);
+
+  // Función para manejar la reserva de la mesa
+  const handleReserveTable = async () => {
+    try {
+      // Obtener la cantidad de sillas de la mesa actual
+      const chairQuantity = chairs.length;
+      await updateTable(tableId, {
+        status: 2,
+        chair_quantity: chairQuantity, // Incluir chair_quantity requerido
+      });
+      // Notificar al componente padre que los datos han cambiado
+      if (onDataUpdated) {
+        onDataUpdated();
+      }
+      onClose(); // Cerrar el modal después de reservar
+    } catch (error) {
+      console.error("Error al reservar la mesa:", error);
+    }
+  };
 
   // Filtrar clientes basado en la búsqueda
   const filteredClients = clients.filter(
@@ -200,12 +224,28 @@ const TableManagementModal = ({ tableId, onClose, onDataUpdated }) => {
         <h2 className="text-2xl font-bold text-gray-800">
           Gestión de Mesa #{tableId}
         </h2>
-        <button
-          onClick={onClose}
-          className="text-gray-500 hover:text-gray-700 transition-colors"
-        >
-          <X size={24} />
-        </button>
+        <div className="flex items-center gap-2">
+          {/* Botón Reservado */}
+          <button
+            onClick={handleReserveTable}
+            disabled={hasError || isLoading}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+              hasError || isLoading
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-purple-600 hover:bg-purple-700 text-white"
+            }`}
+            title="Reservar toda la mesa"
+          >
+            <Bookmark size={16} />
+            Reservado
+          </button>
+          <button
+            onClick={onClose}
+            className="text-gray-500 hover:text-gray-700 transition-colors"
+          >
+            <X size={24} />
+          </button>
+        </div>
       </div>
 
       {/* Mostrar errores */}
@@ -538,10 +578,24 @@ const ZONE_C_COUNT = LATERAL_A_COUNT + LATERAL_B_COUNT;
 const MapItem = ({ table, onSelect, style }) => {
   if (!table) return null;
 
-  const isOccupied = table.status === 1;
-  const colorClass = isOccupied
-    ? "bg-red-500 border-red-700 hover:bg-red-600"
-    : "bg-green-500 border-green-700 hover:bg-green-600";
+  // Determinar el color basado en el estado de la mesa
+  let colorClass = "";
+  let statusText = "";
+
+  switch (table.status) {
+    case 1: // Ocupada
+      colorClass = "bg-red-500 border-red-700 hover:bg-red-600";
+      statusText = "OCUPADA";
+      break;
+    case 2: // Reservada
+      colorClass = "bg-gray-500 border-gray-700 hover:bg-gray-600";
+      statusText = "RESERVADA";
+      break;
+    default: // Libre (status 0 u otro)
+      colorClass = "bg-green-500 border-green-700 hover:bg-green-600";
+      statusText = "LIBRE";
+      break;
+  }
 
   return (
     <div
@@ -549,11 +603,7 @@ const MapItem = ({ table, onSelect, style }) => {
       className={`w-8 h-8 rounded-full border shadow-md ${colorClass} 
          flex items-center justify-center text-xs font-bold text-white cursor-pointer transition-all duration-150 transform hover:scale-110`}
       style={style}
-      title={`Mesa #${table.number} - Sillas: ${
-        table.chair_quantity
-      } - Estado: ${
-        isOccupied ? "OCUPADA" : "LIBRE"
-      } (Clic para gestionar asignaciones)`}
+      title={`Mesa #${table.number} - Sillas: ${table.chair_quantity} - Estado: ${statusText} (Clic para gestionar asignaciones)`}
     >
       {table.number}
     </div>
